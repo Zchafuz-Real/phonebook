@@ -1,6 +1,5 @@
 const express = require('express')
 const morgan = require('morgan')
-
 const app = express()
 
 morgan.token('person', function getP (req) {
@@ -9,7 +8,6 @@ morgan.token('person', function getP (req) {
     }
     return null
 })
-
 app.use(express.static('build'))
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] :response-time ms :person'))
@@ -18,22 +16,22 @@ let persons = [
     { 
       "id": 1,
       "name": "Arto Hellas", 
-      "number": "040-123456"
+      "phone": "040-123456"
     },
     { 
       "id": 2,
       "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
+      "phone": "39-44-5323523"
     },
     { 
       "id": 3,
       "name": "Dan Abramov", 
-      "number": "12-43-234345"
+      "phone": "12-43-234345"
     },
     { 
       "id": 4,
       "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
+      "phone": "39-23-6423122"
     }
 ]
 
@@ -46,6 +44,7 @@ app.get('/api/persons/:id', (request,response)=>{
     response.json(person)
 })
 
+
 app.get('/info', (request, response) => {
     response.send(`<div>Phoneobok has info for ${persons.length}</div> <p>${Date()}</p>`)
 
@@ -57,10 +56,10 @@ app.post('/api/persons', (request,response) => {
     const newPerson = {
         id: Math.floor(Math.random() * 100),
         name: body.name,
-        number: body.number
+        phone: body.phone
     }
     
-    if (!body.name || !body.number) {
+    if (!body.name || !body.phone) {
         response.json({error: 'name or number is missing'})
         return response.status(400).end()
     }
@@ -69,12 +68,20 @@ app.post('/api/persons', (request,response) => {
         return response.status(400).end()
     }
 
-    persons = persons.concat(newPerson)
-    return (
-        response.json(newPerson)
-    )
     
+    
+    persons = persons.concat(newPerson)
+    response.json(newPerson)
+
 })
+
+app.delete('/api/persons/:id', (request,response) => {
+    const id = Number(request.params.id)
+
+    persons = persons.filter(p => p.id !== id)
+})
+
+
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {

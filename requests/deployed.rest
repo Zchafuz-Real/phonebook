@@ -1,0 +1,7 @@
+POST https://phonebook-3efq.onrender.com/api/persons
+Content-Type: application/json
+
+{
+    "name":"filip uzdowski",
+    "number":666
+}

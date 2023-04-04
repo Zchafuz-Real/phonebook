@@ -22,16 +22,13 @@ app.get('/api/persons', (request, response) => {
 
 })
 
-
 app.put('/api/persons/:id', (request, response, next) => {
-    const body = request.body
+    const {name, phone} = request.body
 
-    const person = {
-        name: body.name,
-        phone: body.phone
-    }
-
-    Person.findByIdAndUpdate(request.params.id, person, {new:true})
+    Person.findByIdAndUpdate(
+        request.params.id, 
+        {name, phone}, 
+        {new:true, runValidators: true, context: 'query'})
     .then(updatedPerson => {
         response.json(updatedPerson)
     })
@@ -58,7 +55,7 @@ app.get('/info', (request, response) => {
 
 })
 
-app.post('/api/persons', (request,response) => {
+app.post('/api/persons', (request,response,next) => {
     const body = request.body
 
     const newPerson = {
@@ -67,21 +64,13 @@ app.post('/api/persons', (request,response) => {
         phone: body.phone
     }
     
-    if (!body.name || !body.phone) {
-        response.json({error: 'name or number is missing'})
-        
-        return response.status(400).end()
-    }
-    else if (persons.some(p => p.name === body.name)) {
-        response.json({error: `${body.name} already in the phonebook`})
-        return response.status(400).end()
-    }
 
     const person = new Person(newPerson)
 
     person.save().then(savedPerson => {
         response.json(savedPerson)
     })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request,response,next) => {
@@ -95,12 +84,20 @@ app.delete('/api/persons/:id', (request,response,next) => {
 
 
 const errorHandler = (error, request, response, next) => {
-    console.log(error.message)
+    console.log('ERROR:********', error.message)
 
     if (error.name === 'CastError') {
         return response.status(400).send({error: 'malformed id'})
     }
+    if (error.name == 'ValidationError') {
+        return response.status(400).json({error:error.message})
+    }
+    if (error.name == 'ReferenceError') {
+        return response.status(400).json({error:error.message})
+    }
     next(error)
+
+
 }
 
 

@@ -60,7 +60,7 @@ app.post('/api/persons', (request,response) => {
     const body = request.body
 
     const newPerson = {
-        _id: Math.floor(Math.random() * 100),
+        id: Math.floor(Math.random() * 100),
         name: body.name,
         phone: body.phone
     }
